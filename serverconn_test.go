@@ -59,19 +59,19 @@ func TestServerConnData(t *testing.T) {
 		[]byte("data: message here\n\n"))
 }
 
-func TestServerDataLeadingSpace(t *testing.T) {
+func TestServerConnDataLeadingSpace(t *testing.T) {
 	testCompleteServer(t,
 		[]Event{Event{Data: []byte(" leading space\n second")}},
 		[]byte("data:  leading space\ndata:  second\n\n"))
 }
 
-func TestServerDataMultiline(t *testing.T) {
+func TestServerConnDataMultiline(t *testing.T) {
 	testCompleteServer(t,
 		[]Event{Event{Data: []byte("multi\nline\nmessage")}},
 		[]byte("data: multi\ndata: line\ndata: message\n\n"))
 }
 
-func TestServerTrailingNewline(t *testing.T) {
+func TestServerConnTrailingNewline(t *testing.T) {
 	testCompleteServer(t,
 		[]Event{Event{Data: []byte("ends in newline\n")}},
 		[]byte("data: ends in newline\ndata:\n\n"))
@@ -84,13 +84,13 @@ var weirdEvent = Event{
 	Retry: 1000,
 }
 
-func TestServerWeirdEvent(t *testing.T) {
+func TestServerConnWeirdEvent(t *testing.T) {
 	testCompleteServer(t,
 		[]Event{weirdEvent},
 		[]byte("event:  also leading space\nid:  4\nretry: 1000\ndata:   leading spaces\ndata: multiline\ndata: and ends with a newline\ndata:\n\n"))
 }
 
-func TestServerFlushes(t *testing.T) {
+func TestServerConnFlushes(t *testing.T) {
 	w := httptest.NewRecorder()
 	conn, err := NewServerConn(w)
 	if err != nil {
@@ -109,7 +109,7 @@ func TestServerFlushes(t *testing.T) {
 	}
 }
 
-func TestServerClientEndToEnd(t *testing.T) {
+func TestServerConnClientConnEndToEnd(t *testing.T) {
 	eventsToSend := make(chan Event)
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := NewServerConn(w)
@@ -191,5 +191,4 @@ func TestServerClientEndToEnd(t *testing.T) {
 	if ok {
 		t.Errorf("Got extra event")
 	}
-
 }

@@ -14,7 +14,7 @@ func (e1 Event) Eq(e2 Event) bool {
 		e1.Retry == e2.Retry
 }
 
-func testClientConsumption(t *testing.T, buf []byte, want []Event) {
+func testClientConnConsumption(t *testing.T, buf []byte, want []Event) {
 	client, err := NewClientConn(bufio.NewReader(bytes.NewReader(buf)))
 	if err != nil {
 		t.Fatal(err)
@@ -47,16 +47,16 @@ func testClientConsumption(t *testing.T, buf []byte, want []Event) {
 	}
 }
 
-func TestClientBasic(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnBasic(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("data:Hello, world!\n\n"),
 		[]Event{
 			Event{Data: []byte("Hello, world!")},
 		})
 }
 
-func TestClientMultiple(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnMultiple(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("data:1\n\ndata:2\n\n"),
 		[]Event{
 			Event{Data: []byte("1")},
@@ -64,16 +64,16 @@ func TestClientMultiple(t *testing.T) {
 		})
 }
 
-func TestClientEventName(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnEventName(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("event:a\ndata:b\n\n"),
 		[]Event{
 			Event{Event: "a", Data: []byte("b")},
 		})
 }
 
-func TestClientLeadingSpaces(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnLeadingSpaces(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("data: one space\n\ndata:  two spaces\n\n"),
 		[]Event{
 			Event{Data: []byte("one space")},
@@ -81,32 +81,32 @@ func TestClientLeadingSpaces(t *testing.T) {
 		})
 }
 
-func TestClientDataConcat(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnDataConcat(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("data:1\ndata:2\n\n"),
 		[]Event{
 			Event{Data: []byte("1\n2")},
 		})
 }
 
-func TestClientID(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnID(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("id: zzz\ndata: 4\n\n"),
 		[]Event{
 			Event{ID: "zzz", Data: []byte("4")},
 		})
 }
 
-func TestClientRetry(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnRetry(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("retry:4\ndata:a\n\n"),
 		[]Event{
 			Event{Retry: 4, Data: []byte("a")},
 		})
 }
 
-func TestClientAttributesInMiddle(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnAttributesInMiddle(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("data:before\nretry:1\nevent:name\nid:foo\ndata:after\n\n"),
 		[]Event{
 			Event{
@@ -118,14 +118,14 @@ func TestClientAttributesInMiddle(t *testing.T) {
 		})
 }
 
-func TestClientDropsNoDataMessages(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnDropsNoDataMessages(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("event:a\n\n"),
 		[]Event{})
 }
 
-func TestClientReturnsEmptyData(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnReturnsEmptyData(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("event:b\ndata:\n\n"),
 		[]Event{
 			Event{
@@ -135,25 +135,25 @@ func TestClientReturnsEmptyData(t *testing.T) {
 		})
 }
 
-func TestClientWeirdEvent(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnWeirdEvent(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("event:  also leading space\nid:  4\nretry: 1000\ndata:   leading spaces\ndata: multiline\ndata: and ends with a newline\ndata:\n\n"),
 		[]Event{weirdEvent})
 }
 
-func TestClientKeepaliveData(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnKeepaliveData(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte(":\n\ndata: stuff\n\n"),
 		[]Event{Event{Data: []byte("stuff")}})
 }
 
-func TestClientBOM(t *testing.T) {
-	testClientConsumption(t,
+func TestClientConnBOM(t *testing.T) {
+	testClientConnConsumption(t,
 		[]byte("\xEF\xBB\xBFdata: stuff\n\n"),
 		[]Event{Event{Data: []byte("stuff")}})
 }
 
-func TestClientStreams(t *testing.T) {
+func TestClientConnStreams(t *testing.T) {
 	dataBuffer := []byte("data:message\n\n")
 	wantEvent := Event{Data: []byte("message")}
 
