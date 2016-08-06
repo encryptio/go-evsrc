@@ -7,12 +7,17 @@ import (
 	"strings"
 )
 
+// MaxEventDataSize is the maximum size in bytes of an Event read by ClientConn.
 const MaxEventDataSize = 1024 * 1024 * 4
 
 var (
 	errEventDataTooBig = errors.New("event data too large")
 )
 
+// ClientConn is a low-level Event Source client API that only parses the event
+// stream.
+//
+// ClientConns are not safe for concurrent use.
 type ClientConn struct {
 	// LastEventID is the last Event.ID received by the ClientConn (even if that
 	// Event didn't have any Data)

@@ -8,6 +8,8 @@ import (
 
 // A ServerConn contains a http.ResponseWriter, and allows you to Send Events
 // across that http response.
+//
+// ServerConns are not safe for concurrent use.
 type ServerConn struct {
 	w http.ResponseWriter
 }
@@ -33,7 +35,7 @@ func NewServerConn(w http.ResponseWriter) (*ServerConn, error) {
 func (s *ServerConn) Send(e Event) error {
 	defer s.flush()
 
-	if e.IsZero() {
+	if e.isZero() {
 		_, err := fmt.Fprintf(s.w, ":\n\n")
 		return err
 	}
