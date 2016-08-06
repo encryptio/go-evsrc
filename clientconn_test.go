@@ -147,6 +147,12 @@ func TestClientKeepaliveData(t *testing.T) {
 		[]Event{Event{Data: []byte("stuff")}})
 }
 
+func TestClientBOM(t *testing.T) {
+	testClientConsumption(t,
+		[]byte("\xEF\xBB\xBFdata: stuff\n\n"),
+		[]Event{Event{Data: []byte("stuff")}})
+}
+
 func TestClientStreams(t *testing.T) {
 	dataBuffer := []byte("data:message\n\n")
 	wantEvent := Event{Data: []byte("message")}
